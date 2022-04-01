@@ -2,6 +2,7 @@
 #define INDCPA_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "params.h"
 #include "polyvec.h"
 
@@ -10,6 +11,11 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed);
 #define indcpa_keypair KYBER_NAMESPACE(indcpa_keypair)
 void indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
                     uint8_t sk[KYBER_INDCPA_SECRETKEYBYTES]);
+#define indcpa_keypair_with_recovery KYBER_NAMESPACE(indcpa_keypair_with_recovery)
+void indcpa_keypair_with_recovery(uint8_t seed[KYBER_SYMBYTES],
+                                  bool recovery,
+                                  uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
+                                  uint8_t sk[KYBER_INDCPA_SECRETKEYBYTES]);
 
 #define indcpa_enc KYBER_NAMESPACE(indcpa_enc)
 void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],

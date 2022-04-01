@@ -231,6 +231,7 @@ typedef struct OQS_KEM {
 	 * @return OQS_SUCCESS or OQS_ERROR
 	 */
 	OQS_STATUS (*keypair)(uint8_t *public_key, uint8_t *secret_key);
+    OQS_STATUS (*keypair_with_recovery)(uint8_t *seed,bool recovery,uint8_t *public_key, uint8_t *secret_key);
 
 	/**
 	 * Encapsulation algorithm.
@@ -286,6 +287,7 @@ OQS_API OQS_KEM *OQS_KEM_new(const char *method_name);
  * @return OQS_SUCCESS or OQS_ERROR
  */
 OQS_API OQS_STATUS OQS_KEM_keypair(const OQS_KEM *kem, uint8_t *public_key, uint8_t *secret_key);
+OQS_API OQS_STATUS OQS_KEM_keypair_with_recovery(const OQS_KEM *kem,uint8_t *seed,bool recovery, uint8_t *public_key, uint8_t *secret_key);
 
 /**
  * Encapsulation algorithm.

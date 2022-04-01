@@ -2,6 +2,7 @@
 #define API_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #define pqcrystals_kyber512_SECRETKEYBYTES 1632
 #define pqcrystals_kyber512_PUBLICKEYBYTES 800
@@ -37,6 +38,7 @@ int pqcrystals_kyber512_90s_ref_dec(uint8_t *ss, const uint8_t *ct, const uint8_
 #define pqcrystals_kyber768_ref_BYTES pqcrystals_kyber768_BYTES
 
 int pqcrystals_kyber768_ref_keypair(uint8_t *pk, uint8_t *sk);
+int pqcrystals_kyber768_ref_keypair_with_recovery(uint8_t *seed,bool recovery,uint8_t *pk, uint8_t *sk);
 int pqcrystals_kyber768_ref_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk);
 int pqcrystals_kyber768_ref_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk);
 

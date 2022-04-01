@@ -24,6 +24,7 @@ OQS_KEM *OQS_KEM_kyber_768_new() {
 	kem->length_shared_secret = OQS_KEM_kyber_768_length_shared_secret;
 
 	kem->keypair = OQS_KEM_kyber_768_keypair;
+	kem->keypair_with_recovery = OQS_KEM_kyber_768_keypair_with_recovery;
 	kem->encaps = OQS_KEM_kyber_768_encaps;
 	kem->decaps = OQS_KEM_kyber_768_decaps;
 
@@ -31,11 +32,13 @@ OQS_KEM *OQS_KEM_kyber_768_new() {
 }
 
 extern int pqcrystals_kyber768_ref_keypair(uint8_t *pk, uint8_t *sk);
+extern int pqcrystals_kyber768_ref_keypair_with_recovery(uint8_t *seed,bool recovery,uint8_t *pk, uint8_t *sk);
 extern int pqcrystals_kyber768_ref_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk);
 extern int pqcrystals_kyber768_ref_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk);
 
 #if defined(OQS_ENABLE_KEM_kyber_768_avx2)
 extern int pqcrystals_kyber768_avx2_keypair(uint8_t *pk, uint8_t *sk);
+extern int pqcrystals_kyber768_avx2_keypair_with_recovery(uint8_t *seed,bool recovery,uint8_t *pk, uint8_t *sk);
 extern int pqcrystals_kyber768_avx2_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk);
 extern int pqcrystals_kyber768_avx2_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk);
 #endif
@@ -69,6 +72,32 @@ OQS_API OQS_STATUS OQS_KEM_kyber_768_keypair(uint8_t *public_key, uint8_t *secre
 #endif /* OQS_DIST_BUILD */
 #else
 	return (OQS_STATUS) pqcrystals_kyber768_ref_keypair(public_key, secret_key);
+#endif
+}
+
+OQS_API OQS_STATUS OQS_KEM_kyber_768_keypair_with_recovery(uint8_t *seed,bool recovery,uint8_t *public_key, uint8_t *secret_key) {
+#if defined(OQS_ENABLE_KEM_kyber_768_avx2)
+#if defined(OQS_DIST_BUILD)
+    if (OQS_CPU_has_extension(OQS_CPU_EXT_AVX2) && OQS_CPU_has_extension(OQS_CPU_EXT_BMI2) && OQS_CPU_has_extension(OQS_CPU_EXT_POPCNT)) {
+#endif /* OQS_DIST_BUILD */
+    return (OQS_STATUS) pqcrystals_kyber768_avx2_keypair_with_recovery(seed,recovery,public_key, secret_key);
+#if defined(OQS_DIST_BUILD)
+    } else {
+		return (OQS_STATUS) pqcrystals_kyber768_ref_keypair(public_key, secret_key);
+	}
+#endif /* OQS_DIST_BUILD */
+#elif defined(OQS_ENABLE_KEM_kyber_768_aarch64)
+    #if defined(OQS_DIST_BUILD)
+	if (OQS_CPU_has_extension(OQS_CPU_EXT_ARM_NEON)) {
+#endif /* OQS_DIST_BUILD */
+		return (OQS_STATUS) PQCLEAN_KYBER768_AARCH64_crypto_kem_keypair(public_key, secret_key);
+#if defined(OQS_DIST_BUILD)
+	} else {
+		return (OQS_STATUS) pqcrystals_kyber768_ref_keypair(public_key, secret_key);
+	}
+#endif /* OQS_DIST_BUILD */
+#else
+	return (OQS_STATUS) pqcrystals_kyber768_ref_keypair_with_recovery(seed,recovery,public_key, secret_key);
 #endif
 }
 

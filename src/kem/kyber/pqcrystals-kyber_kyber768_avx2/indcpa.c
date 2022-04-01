@@ -526,7 +526,72 @@ void indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
   pack_sk(sk, &skpv);
   pack_pk(pk, &pkpv, publicseed);
 }
+void indcpa_keypair_with_recovery(uint8_t seed[KYBER_SYMBYTES],
+                                  bool recovery,
+                                  uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
+                                  uint8_t sk[KYBER_INDCPA_SECRETKEYBYTES])
+{
+    unsigned int i;
+    uint8_t buf[2*KYBER_SYMBYTES];
+    const uint8_t *publicseed = buf;
+    const uint8_t *noiseseed = buf + KYBER_SYMBYTES;
+    polyvec a[KYBER_K], e, pkpv, skpv;
+    if (!recovery){
+        randombytes(buf, KYBER_SYMBYTES);
+        memcpy(seed,buf,KYBER_SYMBYTES);
+    }else{
+        memcpy(buf,seed,KYBER_SYMBYTES);
+    }
+    hash_g(buf, buf, KYBER_SYMBYTES);
 
+    gen_a(a, publicseed);
+
+#ifdef KYBER_90S
+    #define NOISE_NBLOCKS ((KYBER_ETA1*KYBER_N/4)/AES256CTR_BLOCKBYTES) /* Assumes divisibility */
+  uint64_t nonce = 0;
+  ALIGNED_UINT8(NOISE_NBLOCKS*AES256CTR_BLOCKBYTES+32) coins; // +32 bytes as required by poly_cbd_eta1
+  aes256ctr_ctx state;
+  aes256ctr_init(&state, noiseseed, nonce++);
+  for(i=0;i<KYBER_K;i++) {
+    aes256ctr_squeezeblocks(coins.coeffs, NOISE_NBLOCKS, &state);
+    state.n = _mm_loadl_epi64((__m128i *)&nonce);
+    nonce += 1;
+    poly_cbd_eta1(&skpv.vec[i], coins.vec);
+  }
+  for(i=0;i<KYBER_K;i++) {
+    aes256ctr_squeezeblocks(coins.coeffs, NOISE_NBLOCKS, &state);
+    state.n = _mm_loadl_epi64((__m128i *)&nonce);
+    nonce += 1;
+    poly_cbd_eta1(&e.vec[i], coins.vec);
+  }
+#else
+#if KYBER_K == 2
+    poly_getnoise_eta1_4x(skpv.vec+0, skpv.vec+1, e.vec+0, e.vec+1, noiseseed, 0, 1, 2, 3);
+#elif KYBER_K == 3
+    poly_getnoise_eta1_4x(skpv.vec+0, skpv.vec+1, skpv.vec+2, e.vec+0, noiseseed, 0, 1, 2, 3);
+    poly_getnoise_eta1_4x(e.vec+1, e.vec+2, pkpv.vec+0, pkpv.vec+1, noiseseed, 4, 5, 6, 7);
+#elif KYBER_K == 4
+    poly_getnoise_eta1_4x(skpv.vec+0, skpv.vec+1, skpv.vec+2, skpv.vec+3, noiseseed,  0, 1, 2, 3);
+  poly_getnoise_eta1_4x(e.vec+0, e.vec+1, e.vec+2, e.vec+3, noiseseed, 4, 5, 6, 7);
+#endif
+#endif
+
+    polyvec_ntt(&skpv);
+    polyvec_reduce(&skpv);
+    polyvec_ntt(&e);
+
+    // matrix-vector multiplication
+    for(i=0;i<KYBER_K;i++) {
+        polyvec_basemul_acc_montgomery(&pkpv.vec[i], &a[i], &skpv);
+        poly_tomont(&pkpv.vec[i]);
+    }
+
+    polyvec_add(&pkpv, &pkpv, &e);
+    polyvec_reduce(&pkpv);
+
+    pack_sk(sk, &skpv);
+    pack_pk(pk, &pkpv, publicseed);
+}
 /*************************************************
 * Name:        indcpa_enc
 *

@@ -32,6 +32,19 @@ int crypto_kem_keypair(uint8_t *pk,
   return 0;
 }
 
+int crypto_kem_keypair_with_recovery(uint8_t *seed,
+                                     bool recovery,
+                                     uint8_t *pk,
+                                     uint8_t *sk)
+{
+    indcpa_keypair_with_recovery(seed,recovery,pk, sk);
+    memcpy(sk+KYBER_INDCPA_SECRETKEYBYTES, pk, KYBER_INDCPA_PUBLICKEYBYTES);
+    hash_h(sk+KYBER_SECRETKEYBYTES-2*KYBER_SYMBYTES, pk, KYBER_PUBLICKEYBYTES);
+    /* Value z for pseudo-random output on reject */
+    randombytes(sk+KYBER_SECRETKEYBYTES-KYBER_SYMBYTES, KYBER_SYMBYTES);
+    return 0;
+}
+
 /*************************************************
 * Name:        crypto_kem_enc
 *
