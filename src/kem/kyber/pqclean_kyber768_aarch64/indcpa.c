@@ -10,6 +10,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 /*************************************************
 * Name:        pack_pk
@@ -276,7 +277,7 @@ void indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
     pack_pk(pk, pkpv, publicseed);
 }
 
-void indcpa_keypair(uint8_t seed[KYBER_SYMBYTES],
+void indcpa_keypair_with_recovery(uint8_t seed[KYBER_SYMBYTES],
                     bool recovery,
                     uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
                     uint8_t sk[KYBER_INDCPA_SECRETKEYBYTES]) {

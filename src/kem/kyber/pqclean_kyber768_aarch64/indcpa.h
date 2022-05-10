@@ -4,6 +4,7 @@
 #include "params.h"
 #include "polyvec.h"
 #include <stdint.h>
+#include <stdbool.h>
 
 #define gen_matrix KYBER_NAMESPACE(gen_matrix)
 void gen_matrix(int16_t a[KYBER_K][KYBER_K][KYBER_N], const uint8_t seed[KYBER_SYMBYTES], int transposed);

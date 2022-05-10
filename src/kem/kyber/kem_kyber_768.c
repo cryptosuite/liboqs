@@ -45,6 +45,7 @@ extern int pqcrystals_kyber768_avx2_dec(uint8_t *ss, const uint8_t *ct, const ui
 
 #if defined(OQS_ENABLE_KEM_kyber_768_aarch64)
 extern int PQCLEAN_KYBER768_AARCH64_crypto_kem_keypair(uint8_t *pk, uint8_t *sk);
+extern int PQCLEAN_KYBER768_AARCH64_crypto_kem_keypair_with_recovery(uint8_t *seed, bool recovery, uint8_t *pk, uint8_t *sk);
 extern int PQCLEAN_KYBER768_AARCH64_crypto_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk);
 extern int PQCLEAN_KYBER768_AARCH64_crypto_kem_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk);
 #endif
@@ -90,7 +91,7 @@ OQS_API OQS_STATUS OQS_KEM_kyber_768_keypair_with_recovery(uint8_t *seed,bool re
     #if defined(OQS_DIST_BUILD)
 	if (OQS_CPU_has_extension(OQS_CPU_EXT_ARM_NEON)) {
 #endif /* OQS_DIST_BUILD */
-		return (OQS_STATUS) PQCLEAN_KYBER768_AARCH64_crypto_kem_keypair_with_recovery(seed,recovery,public_key, secret_key);
+		return (OQS_STATUS) PQCLEAN_KYBER768_AARCH64_crypto_kem_keypair_with_recovery(seed, recovery, public_key, secret_key);
 #if defined(OQS_DIST_BUILD)
 	} else {
 		return (OQS_STATUS) pqcrystals_kyber768_ref_keypair_with_recovery(seed,recovery,public_key, secret_key);
