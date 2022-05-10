@@ -276,6 +276,51 @@ void indcpa_keypair(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
     pack_pk(pk, pkpv, publicseed);
 }
 
+void indcpa_keypair(uint8_t seed[KYBER_SYMBYTES],
+                    bool recovery,
+                    uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
+                    uint8_t sk[KYBER_INDCPA_SECRETKEYBYTES]) {
+    unsigned int i;
+    uint8_t buf[2 * KYBER_SYMBYTES];
+    const uint8_t *publicseed = buf;
+    const uint8_t *noiseseed = buf + KYBER_SYMBYTES;
+    int16_t a[KYBER_K][KYBER_K][KYBER_N];
+    int16_t e[KYBER_K][KYBER_N];
+    int16_t pkpv[KYBER_K][KYBER_N];
+    int16_t skpv[KYBER_K][KYBER_N];
+    int16_t skpv_asymmetric[KYBER_K][KYBER_N >> 1];
+
+    if (!recovery){
+        randombytes(buf, KYBER_SYMBYTES);
+        memcpy(seed,buf,KYBER_SYMBYTES);
+    }else{
+        memcpy(buf,seed,KYBER_SYMBYTES);
+    }
+    hash_g(buf, buf, KYBER_SYMBYTES);
+
+    gen_a(a, publicseed);
+
+    neon_poly_getnoise_eta1_2x(&(skpv[0][0]), &(skpv[1][0]), noiseseed, 0, 1);
+    neon_poly_getnoise_eta1_2x(&(skpv[2][0]), &(e[0][0]), noiseseed, 2, 3);
+    neon_poly_getnoise_eta1_2x(&(e[1][0]), &(e[2][0]), noiseseed, 4, 5);
+
+    neon_polyvec_ntt(skpv);
+    neon_polyvec_ntt(e);
+
+    for (i = 0; i < KYBER_K; i++) {
+        PQCLEAN_KYBER768_AARCH64_asm_point_mul_extended(&(skpv_asymmetric[i][0]), &(skpv[i][0]), pre_asymmetric_table_Q1_extended, asymmetric_const);
+    }
+
+    for (i = 0; i < KYBER_K; i++) {
+        PQCLEAN_KYBER768_AARCH64_asm_asymmetric_mul_montgomery(&(a[i][0][0]), &(skpv[0][0]), &(skpv_asymmetric[0][0]), asymmetric_const, pkpv[i]);
+    }
+
+    neon_polyvec_add_reduce(pkpv, e);
+
+    pack_sk(sk, skpv);
+    pack_pk(pk, pkpv, publicseed);
+}
+
 /*************************************************
 * Name:        indcpa_enc
 *

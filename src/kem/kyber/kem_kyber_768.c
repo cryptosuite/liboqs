@@ -83,17 +83,17 @@ OQS_API OQS_STATUS OQS_KEM_kyber_768_keypair_with_recovery(uint8_t *seed,bool re
     return (OQS_STATUS) pqcrystals_kyber768_avx2_keypair_with_recovery(seed,recovery,public_key, secret_key);
 #if defined(OQS_DIST_BUILD)
     } else {
-		return (OQS_STATUS) pqcrystals_kyber768_ref_keypair(public_key, secret_key);
+		return (OQS_STATUS) pqcrystals_kyber768_ref_keypair_with_recovery(seed,recovery,public_key, secret_key);
 	}
 #endif /* OQS_DIST_BUILD */
 #elif defined(OQS_ENABLE_KEM_kyber_768_aarch64)
     #if defined(OQS_DIST_BUILD)
 	if (OQS_CPU_has_extension(OQS_CPU_EXT_ARM_NEON)) {
 #endif /* OQS_DIST_BUILD */
-		return (OQS_STATUS) PQCLEAN_KYBER768_AARCH64_crypto_kem_keypair(public_key, secret_key);
+		return (OQS_STATUS) PQCLEAN_KYBER768_AARCH64_crypto_kem_keypair_with_recovery(seed,recovery,public_key, secret_key);
 #if defined(OQS_DIST_BUILD)
 	} else {
-		return (OQS_STATUS) pqcrystals_kyber768_ref_keypair(public_key, secret_key);
+		return (OQS_STATUS) pqcrystals_kyber768_ref_keypair_with_recovery(seed,recovery,public_key, secret_key);
 	}
 #endif /* OQS_DIST_BUILD */
 #else

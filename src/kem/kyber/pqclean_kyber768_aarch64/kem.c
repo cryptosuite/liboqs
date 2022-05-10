@@ -34,6 +34,21 @@ int PQCLEAN_KYBER768_AARCH64_crypto_kem_keypair(uint8_t *pk,
     return 0;
 }
 
+int PQCLEAN_KYBER768_AARCH64_crypto_kem_keypair_with_recovery(uint8_t *seed,
+                                                              bool recovery,
+                                                              uint8_t *pk,
+                                                              uint8_t *sk) {
+    size_t i;
+    indcpa_keypair_with_recovery(seed,recovery,pk, sk);
+    for (i = 0; i < KYBER_INDCPA_PUBLICKEYBYTES; i++) {
+        sk[i + KYBER_INDCPA_SECRETKEYBYTES] = pk[i];
+    }
+    hash_h(sk + KYBER_SECRETKEYBYTES - 2 * KYBER_SYMBYTES, pk, KYBER_PUBLICKEYBYTES);
+    /* Value z for pseudo-random output on reject */
+    randombytes(sk + KYBER_SECRETKEYBYTES - KYBER_SYMBYTES, KYBER_SYMBYTES);
+    return 0;
+}
+
 /*************************************************
 * Name:        crypto_kem_enc
 *
