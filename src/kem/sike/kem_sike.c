@@ -8,7 +8,7 @@
 
 #include "external/P434/P434_api.h"
 
-OQS_KEM *OQS_KEM_sike_p434_new() {
+OQS_KEM *OQS_KEM_sike_p434_new(void) {
 
 	OQS_KEM *kem = malloc(sizeof(OQS_KEM));
 	if (kem == NULL) {
@@ -38,7 +38,7 @@ OQS_KEM *OQS_KEM_sike_p434_new() {
 
 #include "external/P434/P434_compressed_api.h"
 
-OQS_KEM *OQS_KEM_sike_p434_compressed_new() {
+OQS_KEM *OQS_KEM_sike_p434_compressed_new(void) {
 
 	OQS_KEM *kem = malloc(sizeof(OQS_KEM));
 	if (kem == NULL) {
@@ -68,7 +68,7 @@ OQS_KEM *OQS_KEM_sike_p434_compressed_new() {
 
 #include "external/P503/P503_api.h"
 
-OQS_KEM *OQS_KEM_sike_p503_new() {
+OQS_KEM *OQS_KEM_sike_p503_new(void) {
 
 	OQS_KEM *kem = malloc(sizeof(OQS_KEM));
 	if (kem == NULL) {
@@ -98,7 +98,7 @@ OQS_KEM *OQS_KEM_sike_p503_new() {
 
 #include "external/P503/P503_compressed_api.h"
 
-OQS_KEM *OQS_KEM_sike_p503_compressed_new() {
+OQS_KEM *OQS_KEM_sike_p503_compressed_new(void) {
 
 	OQS_KEM *kem = malloc(sizeof(OQS_KEM));
 	if (kem == NULL) {
@@ -128,7 +128,7 @@ OQS_KEM *OQS_KEM_sike_p503_compressed_new() {
 
 #include "external/P610/P610_api.h"
 
-OQS_KEM *OQS_KEM_sike_p610_new() {
+OQS_KEM *OQS_KEM_sike_p610_new(void) {
 
 	OQS_KEM *kem = malloc(sizeof(OQS_KEM));
 	if (kem == NULL) {
@@ -158,7 +158,7 @@ OQS_KEM *OQS_KEM_sike_p610_new() {
 
 #include "external/P610/P610_compressed_api.h"
 
-OQS_KEM *OQS_KEM_sike_p610_compressed_new() {
+OQS_KEM *OQS_KEM_sike_p610_compressed_new(void) {
 
 	OQS_KEM *kem = malloc(sizeof(OQS_KEM));
 	if (kem == NULL) {
@@ -188,7 +188,7 @@ OQS_KEM *OQS_KEM_sike_p610_compressed_new() {
 
 #include "external/P751/P751_api.h"
 
-OQS_KEM *OQS_KEM_sike_p751_new() {
+OQS_KEM *OQS_KEM_sike_p751_new(void) {
 
 	OQS_KEM *kem = malloc(sizeof(OQS_KEM));
 	if (kem == NULL) {
@@ -218,7 +218,7 @@ OQS_KEM *OQS_KEM_sike_p751_new() {
 
 #include "external/P751/P751_compressed_api.h"
 
-OQS_KEM *OQS_KEM_sike_p751_compressed_new() {
+OQS_KEM *OQS_KEM_sike_p751_compressed_new(void) {
 
 	OQS_KEM *kem = malloc(sizeof(OQS_KEM));
 	if (kem == NULL) {
@@ -248,7 +248,7 @@ OQS_KEM *OQS_KEM_sike_p751_compressed_new() {
 
 #include "external/P434/P434_api.h"
 
-OQS_KEM *OQS_KEM_sidh_p434_new() {
+OQS_KEM *OQS_KEM_sidh_p434_new(void) {
 
 	OQS_KEM *kem = malloc(sizeof(OQS_KEM));
 	if (kem == NULL) {
@@ -318,7 +318,7 @@ OQS_API OQS_STATUS OQS_KEM_sidh_p434_decaps(uint8_t *shared_secret, const uint8_
 
 #include "external/P434/P434_compressed_api.h"
 
-OQS_KEM *OQS_KEM_sidh_p434_compressed_new() {
+OQS_KEM *OQS_KEM_sidh_p434_compressed_new(void) {
 
 	OQS_KEM *kem = malloc(sizeof(OQS_KEM));
 	if (kem == NULL) {
@@ -388,7 +388,7 @@ OQS_API OQS_STATUS OQS_KEM_sidh_p434_compressed_decaps(uint8_t *shared_secret, c
 
 #include "external/P503/P503_api.h"
 
-OQS_KEM *OQS_KEM_sidh_p503_new() {
+OQS_KEM *OQS_KEM_sidh_p503_new(void) {
 
 	OQS_KEM *kem = malloc(sizeof(OQS_KEM));
 	if (kem == NULL) {
@@ -458,7 +458,7 @@ OQS_API OQS_STATUS OQS_KEM_sidh_p503_decaps(uint8_t *shared_secret, const uint8_
 
 #include "external/P503/P503_compressed_api.h"
 
-OQS_KEM *OQS_KEM_sidh_p503_compressed_new() {
+OQS_KEM *OQS_KEM_sidh_p503_compressed_new(void) {
 
 	OQS_KEM *kem = malloc(sizeof(OQS_KEM));
 	if (kem == NULL) {
@@ -528,7 +528,7 @@ OQS_API OQS_STATUS OQS_KEM_sidh_p503_compressed_decaps(uint8_t *shared_secret, c
 
 #include "external/P610/P610_api.h"
 
-OQS_KEM *OQS_KEM_sidh_p610_new() {
+OQS_KEM *OQS_KEM_sidh_p610_new(void) {
 
 	OQS_KEM *kem = malloc(sizeof(OQS_KEM));
 	if (kem == NULL) {
@@ -598,7 +598,7 @@ OQS_API OQS_STATUS OQS_KEM_sidh_p610_decaps(uint8_t *shared_secret, const uint8_
 
 #include "external/P610/P610_compressed_api.h"
 
-OQS_KEM *OQS_KEM_sidh_p610_compressed_new() {
+OQS_KEM *OQS_KEM_sidh_p610_compressed_new(void) {
 
 	OQS_KEM *kem = malloc(sizeof(OQS_KEM));
 	if (kem == NULL) {
@@ -668,7 +668,7 @@ OQS_API OQS_STATUS OQS_KEM_sidh_p610_compressed_decaps(uint8_t *shared_secret, c
 
 #include "external/P751/P751_api.h"
 
-OQS_KEM *OQS_KEM_sidh_p751_new() {
+OQS_KEM *OQS_KEM_sidh_p751_new(void) {
 
 	OQS_KEM *kem = malloc(sizeof(OQS_KEM));
 	if (kem == NULL) {
@@ -738,7 +738,7 @@ OQS_API OQS_STATUS OQS_KEM_sidh_p751_decaps(uint8_t *shared_secret, const uint8_
 
 #include "external/P751/P751_compressed_api.h"
 
-OQS_KEM *OQS_KEM_sidh_p751_compressed_new() {
+OQS_KEM *OQS_KEM_sidh_p751_compressed_new(void) {
 
 	OQS_KEM *kem = malloc(sizeof(OQS_KEM));
 	if (kem == NULL) {
