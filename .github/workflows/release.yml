@@ -51,7 +51,7 @@ jobs:
       - name: Install macOS dependencies
         if: runner.os == 'macOS'
         run: |
-          brew install ninja openssl@3
+          brew install ninja
 
       - name: Configure Unix build
         if: runner.os != 'Windows'
@@ -66,11 +66,11 @@ jobs:
             -DBUILD_SHARED_LIBS=ON
             -DOQS_BUILD_ONLY_LIB=ON
             -DOQS_DIST_BUILD=ON
+            -DOQS_USE_OPENSSL=OFF
           )
 
           if [ "${{ runner.os }}" = "macOS" ]; then
             cmake_args+=(
-              "-DOPENSSL_ROOT_DIR=$(brew --prefix openssl@3)"
               -DOQS_ENABLE_KEM_CLASSIC_MCELIECE=OFF
             )
           fi
@@ -105,6 +105,7 @@ jobs:
             -DBUILD_SHARED_LIBS=ON `
             -DOQS_BUILD_ONLY_LIB=ON `
             -DOQS_DIST_BUILD=ON `
+            -DOQS_USE_OPENSSL=OFF `
             -DCMAKE_INSTALL_PREFIX="$pwd\install"
 
       - name: Build Windows package
@@ -153,6 +154,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1 || \
-          gh release create "${GITHUB_REF_NAME}" --title "${GITHUB_REF_NAME}" --generate-notes
-          gh release upload "${GITHUB_REF_NAME}" dist/* --clobber
+          gh release view "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1 || \
+          gh release create "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" --title "${GITHUB_REF_NAME}" --generate-notes
+          gh release upload "${GITHUB_REF_NAME}" dist/* --repo "${GITHUB_REPOSITORY}" --clobber
