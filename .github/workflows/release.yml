@@ -1,0 +1,158 @@
+name: Release builds
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.runs_on }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS amd64
+            runs_on: macos-15-intel
+            target: macos-amd64
+            archive_name: tar.gz
+          - name: macOS arm64
+            runs_on: macos-15
+            target: macos-arm64
+            archive_name: tar.gz
+          - name: Linux amd64
+            runs_on: ubuntu-latest
+            target: linux-amd64
+            archive_name: tar.gz
+          - name: Linux arm64
+            runs_on: ubuntu-24.04-arm
+            target: linux-arm64
+            archive_name: tar.gz
+          - name: Windows amd64
+            runs_on: windows-2022
+            target: windows-amd64
+            archive_name: zip
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+
+      - name: Install macOS dependencies
+        if: runner.os == 'macOS'
+        run: |
+          brew install ninja openssl@3
+
+      - name: Configure Unix build
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cmake_args=(
+            -S .
+            -B build
+            -GNinja
+            -DCMAKE_BUILD_TYPE=Release
+            -DBUILD_SHARED_LIBS=ON
+            -DOQS_BUILD_ONLY_LIB=ON
+            -DOQS_DIST_BUILD=ON
+          )
+
+          if [ "${{ runner.os }}" = "macOS" ]; then
+            cmake_args+=(
+              "-DOPENSSL_ROOT_DIR=$(brew --prefix openssl@3)"
+              -DOQS_ENABLE_KEM_CLASSIC_MCELIECE=OFF
+            )
+          fi
+
+          cmake "${cmake_args[@]}"
+
+      - name: Build Unix package
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cmake --build build --parallel
+          cmake --install build --prefix install
+
+          release_id="${GITHUB_REF_NAME}"
+          if [ "${GITHUB_REF_TYPE}" != "tag" ]; then
+            release_id="manual-${GITHUB_RUN_NUMBER}-${GITHUB_SHA::7}"
+          fi
+
+          package_root="liboqs-${release_id}-${{ matrix.target }}"
+          mv install "${package_root}"
+          cp LICENSE.txt README.md "${package_root}/"
+          tar -czf "${package_root}.tar.gz" "${package_root}"
+
+      - name: Configure Windows build
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cmake -S . -B build `
+            -G "Visual Studio 17 2022" `
+            -A x64 `
+            -DBUILD_SHARED_LIBS=ON `
+            -DOQS_BUILD_ONLY_LIB=ON `
+            -DOQS_DIST_BUILD=ON `
+            -DCMAKE_INSTALL_PREFIX="$pwd\install"
+
+      - name: Build Windows package
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cmake --build build --config Release --parallel
+          cmake --install build --config Release
+
+          $releaseId = $env:GITHUB_REF_NAME
+          if ($env:GITHUB_REF_TYPE -ne "tag") {
+            $releaseId = "manual-$env:GITHUB_RUN_NUMBER-$($env:GITHUB_SHA.Substring(0, 7))"
+          }
+
+          $packageRoot = "liboqs-$releaseId-${{ matrix.target }}"
+          Move-Item install $packageRoot
+          Copy-Item LICENSE.txt, README.md $packageRoot
+          Compress-Archive -Path $packageRoot -DestinationPath "$packageRoot.zip"
+
+      - name: Upload packaged artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.target }}
+          path: liboqs-*.${{ matrix.archive_name }}
+          if-no-files-found: error
+
+  publish:
+    name: Publish GitHub release
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download packaged artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: release-*
+          merge-multiple: true
+
+      - name: Generate checksums
+        run: |
+          cd dist
+          sha256sum * > SHA256SUMS.txt
+
+      - name: Upload assets to GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1 || \
+          gh release create "${GITHUB_REF_NAME}" --title "${GITHUB_REF_NAME}" --generate-notes
+          gh release upload "${GITHUB_REF_NAME}" dist/* --clobber
