@@ -104,7 +104,8 @@ jobs:
             -A x64 `
             -DBUILD_SHARED_LIBS=ON `
             -DOQS_BUILD_ONLY_LIB=ON `
-            -DOQS_DIST_BUILD=ON `
+            -DOQS_DIST_BUILD=OFF `
+            -DOQS_OPT_TARGET=generic `
             -DOQS_USE_OPENSSL=OFF `
             -DCMAKE_INSTALL_PREFIX="$pwd\install"
 
