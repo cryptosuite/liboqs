@@ -1,4 +1,4 @@
-liboqs version 0.7.4
+liboqs version 0.7.5
 ========================
 
 About
@@ -29,7 +29,7 @@ liboqs can also be used in the following programming languages via language-spec
 Release notes
 =============
 
-This is the development branch for version 0.7.4 of liboqs.
+This is the development branch for version 0.7.5 of liboqs.
 
 What's New
 ----------
